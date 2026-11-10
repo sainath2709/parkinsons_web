@@ -1,0 +1,9 @@
+flask
+tensorflow
+pillow
+numpy<2.0
+flask-cors
+flask-sqlalchemy
+werkzeug
+openai
+python-dotenv

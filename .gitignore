@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables & secrets
+.env
+.env.local
+*.env
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Databases & local instances
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads generated at runtime
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Operating system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE & editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace

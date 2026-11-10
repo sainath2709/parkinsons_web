@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroCare | AI Diagnostics</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Authentication View -->
+    <div id="auth-view" class="active">
+        <div class="auth-sidebar">
+            <div class="auth-sidebar-overlay">
+                <h1>NeuroCare</h1>
+                <p>Advanced diagnostic intelligence engineered for Parkinson's disease detection. Upload high-resolution MRI scans, generate layer-wise Grad-CAM heatmaps, and interact with an integrated medical neuro-assistant all in one seamless environment.</p>
+            </div>
+        </div>
+        
+        <div class="auth-form-container">
+            <div id="auth-error" style="color: var(--danger); margin-bottom: 20px; font-weight: 500; text-align: center;"></div>
+            
+            <form id="login-form">
+                <h2>Welcome back</h2>
+                <p>Sign in to your practitioner portal</p>
+                <div class="form-group">
+                    <input type="text" id="l-username" placeholder="Username" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="l-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn">Authenticate <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></button>
+                <p style="margin-top: 20px; text-align: center; color: var(--text-secondary);">
+                    Need access? <a href="#" onclick="switchAuth('register'); return false;" style="color: var(--primary); text-decoration: none;">Create an account</a>
+                </p>
+            </form>
+
+            <form id="register-form" style="display: none;">
+                <h2>Create Account</h2>
+                <p>Register as a new diagnostic user</p>
+                <div class="form-group">
+                    <input type="text" id="r-username" placeholder="Username" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="r-email" placeholder="Email Address" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="r-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn">Register Credentials</button>
+                <p style="margin-top: 20px; text-align: center; color: var(--text-secondary);">
+                    Already authorized? <a href="#" onclick="switchAuth('login'); return false;" style="color: var(--primary); text-decoration: none;">Sign in</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Dashboard View -->
+    <div id="app-view">
+        <nav class="top-nav">
+            <div class="brand"><i class="fas fa-brain"></i> NeuroCare <span>Intelligence</span></div>
+            <div class="user-controls">
+                <span id="welcome-user"></span>
+                <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Terminate Session</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <!-- Left Column: Upload & Results -->
+            <div class="dashboard-left">
+                <div class="glass-panel">
+                    <div class="panel-title"><i class="fas fa-cloud-upload-alt"></i> MRI Scan Analysis</div>
+                    <input type="file" id="file-input" hidden accept="image/jpeg, image/png">
+                    <div class="upload-zone" id="drop-zone">
+                        <i class="fas fa-file-medical"></i>
+                        <h3>Drop your MRI imaging here</h3>
+                        <p style="color: var(--text-secondary); margin-top: 8px; font-size: 0.9rem;">Supported formats: JPG, PNG (Max 15MB)</p>
+                    </div>
+
+                    <div id="result-card">
+                        <div id="result-text" class="result-header"></div>
+                        <div class="confidence-bar-bg">
+                            <div id="confidence-fill" class="confidence-bar-fill"></div>
+                        </div>
+                        <div id="confidence-text" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 5px;"></div>
+                        <img id="result-cam-img" alt="Grad-CAM Visualization">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: History -->
+            <div class="dashboard-right">
+                <div class="glass-panel" style="height: 100%;">
+                    <div class="panel-title"><i class="fas fa-history"></i> Analytical History Tracker</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Diagnosis</th>
+                                    <th>Probability</th>
+                                    <th>Imagery</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chatbot Widget -->
+        <div class="chat-widget">
+            <div class="chat-toggle" onclick="toggleChat()"><i class="fas fa-comment-medical"></i></div>
+            <div class="chat-panel" id="chat-panel">
+                <div class="chat-header">
+                    <span><i class="fas fa-robot" style="margin-right: 8px;"></i> Medical Assistant</span>
+                    <i class="fas fa-times" style="cursor: pointer; color: var(--text-secondary);" onclick="toggleChat()"></i>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">Hello! I am your NeuroCare medical assistant powered by DeepSeek. How can I help you regarding Parkinson's disease today?</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Type your medical query..." autocomplete="off" onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div class="image-modal" id="image-modal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                <div class="modal-img-col">
+                    <h3>Base MRI Scan</h3>
+                    <img id="modal-orig" src="">
+                </div>
+                <div class="modal-img-col">
+                    <h3>Grad-CAM Topographic Map</h3>
+                    <img id="modal-cam" src="">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script loading -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
